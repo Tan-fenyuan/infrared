@@ -1,0 +1,77 @@
+C51 COMPILER V9.60.7.0   UART                                                              07/13/2023 14:04:16 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Objects\UART.obj
+COMPILER INVOKED BY: D:\keil_arm\C51\BIN\C51.EXE UART.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\UAR
+                    -T.lst) OBJECT(.\Objects\UART.obj)
+
+line level    source
+
+   1          #include "UART.h"
+   2          
+   3          char buff;//存储接收到的数据
+   4          
+   5          /// @brief 初始化
+   6          void UART_Init()
+   7          {
+   8   1          SCON = 0x50; // 0101 0000 允许接受
+   9   1          PCON |= 0x80;
+  10   1          TMOD &= 0x0F;
+  11   1          TMOD |= 0x20;
+  12   1          TL1 = 0xF4; // 0xF3 12Mhz    0xF4 11.0592MHz
+  13   1          TH1 = 0xF4;
+  14   1          ET1 = 0; // 禁止定时器 1中断
+  15   1          TR1 = 1; // 启动定时器1
+  16   1          // 使能中断
+  17   1          EA = 1; // 开启中断
+  18   1          ES = 1; // 开启串口中断
+  19   1      }
+  20          /// @brief 发送一个byte
+  21          /// @param Byte
+  22          void URAT_SendByte(unsigned char Byte)
+  23          {
+  24   1          SBUF = Byte;
+  25   1          while (TI == 0)
+  26   1          {
+  27   2              // do nothing
+  28   2          }
+  29   1          TI = 0;//软件复位1
+  30   1      }
+  31          /// @brief 返回接收到的数据
+  32          /// @return 接收的数据
+  33          /// @retval char buff
+  34          char UART_GetBuff()
+  35          {
+  36   1          return buff;
+  37   1      }
+  38          
+  39          // 中断函数转移
+  40          //recv
+  41          void UART_Routine() interrupt 4
+  42          {
+  43   1          //如果有数据
+  44   1          if (RI == 1)
+  45   1          {
+  46   2              buff = SBUF;
+  47   2      
+  48   2             
+  49   2              RI = 0;//软件复位0
+  50   2          }
+  51   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+C51 COMPILER V9.60.7.0   UART                                                              07/13/2023 14:04:16 PAGE 2   
+
+   CODE SIZE        =     47    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
